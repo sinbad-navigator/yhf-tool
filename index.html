@@ -2,471 +2,472 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>裕农快贷 - 智能准入工具 (V12.0 移动适配版)</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
-  <script src="https://unpkg.com/element-plus"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>裕农快贷 - 智能准入工具 (V12.0 移动适配版)</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-  <style>
-    /* 全局重置 */
-    body { font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: #f2f3f5; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
+    <style>
+        /* 全局重置 */
+        body { font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: #f2f3f5; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
 
-    /* 容器适配：手机上铺满，电脑上居中 */
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-    }
+        /* 容器适配：手机上铺满，电脑上居中 */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
 
-    .header { text-align: center; border-bottom: 2px solid #409EFF; margin-bottom: 20px; padding-bottom: 10px; }
-    .header h2 { font-size: 1.2rem; margin: 10px 0; color: #303133; }
-    .header p { font-size: 0.8rem; color: #909399; }
+        .header { text-align: center; border-bottom: 2px solid #409EFF; margin-bottom: 20px; padding-bottom: 10px; }
+        .header h2 { font-size: 1.2rem; margin: 10px 0; color: #303133; }
+        .header p { font-size: 0.8rem; color: #909399; }
 
-    .section-box { border: 1px solid #ebedf0; border-radius: 6px; padding: 15px; margin-bottom: 20px; position: relative; background: #fff; }
-    .section-title { position: absolute; top: -10px; left: 10px; background: white; padding: 0 5px; font-weight: bold; color: #409EFF; font-size: 14px; }
+        .section-box { border: 1px solid #ebedf0; border-radius: 6px; padding: 15px; margin-bottom: 20px; position: relative; background: #fff; }
+        .section-title { position: absolute; top: -10px; left: 10px; background: white; padding: 0 5px; font-weight: bold; color: #409EFF; font-size: 14px; }
 
-    .slider-panel { background: #fdf6ec; padding: 15px; border-radius: 6px; border: 1px dashed #e6a23c; margin-top: 15px; }
-    .calc-res { font-size: 12px; color: #909399; display: flex; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; }
+        .slider-panel { background: #fdf6ec; padding: 15px; border-radius: 6px; border: 1px dashed #e6a23c; margin-top: 15px; }
+        .calc-res { font-size: 12px; color: #909399; display: flex; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; }
 
-    /* 输入框样式微调 */
-    .input-suffix-text { font-size: 11px; color: #999; margin-top: 2px; }
+        /* 输入框样式微调 */
+        .input-suffix-text { font-size: 11px; color: #999; margin-top: 2px; }
 
-    /* 统计卡片适配 */
-    .summary-card { background-color: #f8f9fa; border: 1px solid #ebeef5; border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 10px; }
-    .summary-label { font-size: 12px; color: #909399; margin-bottom: 4px; }
-    .summary-val { font-size: 16px; font-weight: bold; color: #303133; word-break: break-all; }
-    .summary-sub { font-size: 12px; color: #67C23A; margin-top: 2px; }
+        /* 统计卡片适配 */
+        .summary-card { background-color: #f8f9fa; border: 1px solid #ebeef5; border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 10px; }
+        .summary-label { font-size: 12px; color: #909399; margin-bottom: 4px; }
+        .summary-val { font-size: 16px; font-weight: bold; color: #303133; word-break: break-all; }
+        .summary-sub { font-size: 12px; color: #67C23A; margin-top: 2px; }
 
-    /* 资产负债率面板适配 */
-    .debt-panel { background-color: #ecf5ff; border: 1px solid #d9ecff; border-radius: 6px; padding: 15px; margin-top: 15px; }
-    .debt-row { display: flex; flex-wrap: wrap; }
-    .debt-item { text-align: center; width: 33.33%; border-right: 1px solid #d9ecff; box-sizing: border-box; }
-    .debt-item:last-child { border-right: none; }
-    .debt-label { font-size: 12px; color: #909399; margin-bottom: 5px; }
-    .debt-val { font-size: 16px; font-weight: bold; }
+        /* 资产负债率面板适配 */
+        .debt-panel { background-color: #ecf5ff; border: 1px solid #d9ecff; border-radius: 6px; padding: 15px; margin-top: 15px; }
+        .debt-row { display: flex; flex-wrap: wrap; }
+        .debt-item { text-align: center; width: 33.33%; border-right: 1px solid #d9ecff; box-sizing: border-box; }
+        .debt-item:last-child { border-right: none; }
+        .debt-label { font-size: 12px; color: #909399; margin-bottom: 5px; }
+        .debt-val { font-size: 16px; font-weight: bold; }
 
-    /* --- 移动端专用 CSS (屏幕宽度小于 768px) --- */
-    @media screen and (max-width: 768px) {
-      body { padding: 0; background: #fff; }
-      .container { padding: 15px; border-radius: 0; box-shadow: none; max-width: 100%; }
+        /* --- 移动端专用 CSS (屏幕宽度小于 768px) --- */
+        @media screen and (max-width: 768px) {
+            body { padding: 0; background: #fff; }
+            .container { padding: 15px; border-radius: 0; box-shadow: none; max-width: 100%; }
 
-      /* 强制输入框文字大小，防止缩放 */
-      .el-input__inner { font-size: 16px !important; }
+            /* 强制输入框文字大小，防止缩放 */
+            .el-input__inner { font-size: 16px !important; }
 
-      /* 债务面板在小屏上改为垂直排列，或者保持水平但字变小 */
-      .debt-item { width: 100%; border-right: none; border-bottom: 1px solid #d9ecff; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; padding-left: 10px; padding-right: 10px; }
-      .debt-item:last-child { border-bottom: none; }
-      .debt-label { margin-bottom: 0; }
-    }
-  </style>
+            /* 债务面板在小屏上改为垂直排列，或者保持水平但字变小 */
+            .debt-item { width: 100%; border-right: none; border-bottom: 1px solid #d9ecff; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; padding-left: 10px; padding-right: 10px; }
+            .debt-item:last-child { border-bottom: none; }
+            .debt-label { margin-bottom: 0; }
+        }
+    </style>
 </head>
 <body>
 
 <div id="app" class="container">
-  <div class="header">
-    <h2>裕农快贷 · 智能准入工具 (V12.0)</h2>
-    <p>移动端自适应 | 收支分离 | 独立锁定</p>
-  </div>
-
-  <el-form :model="form" :label-width="isMobile ? 'auto' : '110px'" :label-position="isMobile ? 'top' : 'left'" size="default">
-
-    <div class="section-box">
-      <span class="section-title">1. 客户基本信息</span>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="12"><el-form-item label="客户姓名"><el-input v-model="form.name" placeholder="请输入"></el-input></el-form-item></el-col>
-        <el-col :xs="24" :sm="12"><el-form-item label="身份证号"><el-input v-model="form.idCard" placeholder="请输入"></el-input></el-form-item></el-col>
-      </el-row>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="12"><el-form-item label="联系电话"><el-input v-model="form.phone" type="tel" placeholder="请输入"></el-input></el-form-item></el-col>
-        <el-col :xs="24" :sm="12"><el-form-item label="居住地址"><el-input v-model="form.address" placeholder="请输入"></el-input></el-form-item></el-col>
-      </el-row>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="12"><el-form-item label="婚姻状况">
-          <el-select v-model="form.marriage" style="width:100%">
-            <el-option value="已婚" label="已婚"></el-option>
-            <el-option value="未婚" label="未婚"></el-option>
-            <el-option value="离异" label="离异"></el-option>
-          </el-select>
-        </el-form-item></el-col>
-      </el-row>
+    <div class="header">
+        <h2>裕农快贷 · 智能准入工具 (V12.0)</h2>
+        <p>移动端自适应 | 收支分离 | 独立锁定</p>
     </div>
 
-    <div class="section-box">
-      <span class="section-title">2. 经营画像 (智能测算)</span>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="选择产业">
-            <el-select v-model="form.cropType" @change="handleCropChange" style="width:100%">
-              <el-option v-for="(v, k) in cropDb" :key="k" :label="k" :value="k"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :xs="24" :sm="12"><el-form-item label="细分品种"><el-input v-model="currentCropVariety" disabled></el-input></el-form-item></el-col>
-      </el-row>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="12"><el-form-item label="种植规模(亩)"><el-input-number v-model="form.area" :min="1" style="width:100%" @change="handleManualInput"></el-input-number></el-form-item></el-col>
-        <el-col :xs="24" :sm="12"><el-form-item label="种植年限"><el-input-number v-model="form.years" :min="1" style="width:100%"></el-input-number></el-form-item></el-col>
-      </el-row>
+    <el-form :model="form" :label-width="isMobile ? 'auto' : '110px'" :label-position="isMobile ? 'top' : 'left'" size="default">
 
-      <el-divider content-position="center" style="margin: 20px 0;">收支控制台 ({{ isMobile && lockStatusText.length > 10 ? '已锁定' : lockStatusText }})</el-divider>
-
-      <div class="slider-panel">
-        <div style="display:flex; justify-content:space-between; font-weight:bold; color:#d48806; margin-bottom:15px; align-items: center;">
-          <span style="font-size: 14px;">⚙️ 上年家庭收支比</span>
-          <span style="font-size: 18px;">{{ (realRatio * 100).toFixed(1) }}%</span>
+        <div class="section-box">
+            <span class="section-title">1. 客户基本信息</span>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="12"><el-form-item label="客户姓名"><el-input v-model="form.name" placeholder="请输入"></el-input></el-form-item></el-col>
+                <el-col :xs="24" :sm="12"><el-form-item label="身份证号"><el-input v-model="form.idCard" placeholder="请输入"></el-input></el-form-item></el-col>
+            </el-row>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="12"><el-form-item label="联系电话"><el-input v-model="form.phone" type="tel" placeholder="请输入"></el-input></el-form-item></el-col>
+                <el-col :xs="24" :sm="12"><el-form-item label="居住地址"><el-input v-model="form.address" placeholder="请输入"></el-input></el-form-item></el-col>
+            </el-row>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="12"><el-form-item label="婚姻状况">
+                    <el-select v-model="form.marriage" style="width:100%">
+                        <el-option value="已婚" label="已婚"></el-option>
+                        <el-option value="未婚" label="未婚"></el-option>
+                        <el-option value="离异" label="离异"></el-option>
+                    </el-select>
+                </el-form-item></el-col>
+            </el-row>
         </div>
-        <el-slider
-                v-model="sliderVal"
-                :min="10" :max="90" :step="0.1"
-                @input="handleSliderInput"
-                :disabled="lockCost && lockInc"
-                size="small">
-        </el-slider>
-        <div class="calc-res">
-          <span>总收入: {{ (totalFamilyIncome/10000).toFixed(3) }} 万</span>
-          <span>总支出: {{ (totalFamilyCost/10000).toFixed(3) }} 万</span>
-        </div>
-      </div>
 
-      <el-row :gutter="15" style="margin-top:20px;">
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="亩均投入(元)">
-            <el-input
-                    v-model.number="form.costPerMu"
-                    type="number"
-                    @input="() => { lockCost = true; handleManualInput(); }"
-                    placeholder="可手输">
-              <template #suffix>
-                <el-checkbox v-model="lockCost" label="锁定" size="small" />
-              </template>
-            </el-input>
-            <div class="input-suffix-text">范围: {{currentRange.minCost}}-{{currentRange.maxCost}}</div>
-          </el-form-item>
-        </el-col>
-        <el-col :xs="24" :sm="12">
-          <el-form-item label="亩均产出(元)">
-            <el-input
-                    v-model.number="form.incomePerMu"
-                    type="number"
-                    @input="() => { lockInc = true; handleManualInput(); }"
-                    placeholder="可手输">
-              <template #suffix>
-                <el-checkbox v-model="lockInc" label="锁定" size="small" />
-              </template>
-            </el-input>
-            <div class="input-suffix-text">范围: {{currentRange.minInc}}-{{currentRange.maxInc}}</div>
-          </el-form-item>
-        </el-col>
-      </el-row>
+        <div class="section-box">
+            <span class="section-title">2. 经营画像 (智能测算)</span>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="12">
+                    <el-form-item label="选择产业">
+                        <el-select v-model="form.cropType" @change="handleCropChange" style="width:100%">
+                            <el-option v-for="(v, k) in cropDb" :key="k" :label="k" :value="k"></el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="24" :sm="12"><el-form-item label="细分品种"><el-input v-model="currentCropVariety" disabled></el-input></el-form-item></el-col>
+            </el-row>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="12"><el-form-item label="种植规模(亩)"><el-input-number v-model="form.area" :min="1" style="width:100%" @change="handleManualInput"></el-input-number></el-form-item></el-col>
+                <el-col :xs="24" :sm="12"><el-form-item label="种植年限"><el-input-number v-model="form.years" :min="1" style="width:100%"></el-input-number></el-form-item></el-col>
+            </el-row>
 
-      <el-row :gutter="10" style="margin-bottom: 10px;">
-        <el-col :xs="24" :sm="12">
-          <div class="summary-card">
-            <div class="summary-label">📊 年种植总投入 (纯经营)</div>
-            <div class="summary-val">{{ (form.area * form.costPerMu).toLocaleString() }}</div>
-            <div class="summary-sub">≈ {{ ((form.area * form.costPerMu) / 10000).toFixed(4) }} 万元</div>
-          </div>
-        </el-col>
-        <el-col :xs="24" :sm="12">
-          <div class="summary-card">
-            <div class="summary-label">💰 年种植总产出 (纯经营)</div>
-            <div class="summary-val">{{ (form.area * form.incomePerMu).toLocaleString() }}</div>
-            <div class="summary-sub">≈ {{ ((form.area * form.incomePerMu) / 10000).toFixed(4) }} 万元</div>
-          </div>
-        </el-col>
-      </el-row>
+            <el-divider content-position="center" style="margin: 20px 0;">收支控制台 ({{ isMobile && lockStatusText.length > 10 ? '已锁定' : lockStatusText }})</el-divider>
 
-      <div style="text-align: center; margin-top: 10px;">
-        <el-button type="primary" plain style="width: 100%;" @click="randomizeValues" :disabled="lockCost && lockInc">
-          🎲 智能计算 / 随机微调
-        </el-button>
-      </div>
-    </div>
-
-    <div class="section-box">
-      <span class="section-title">3. 资产与负债</span>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="8"><el-form-item label="房产(万)"><el-input type="number" v-model="form.assetHouse"></el-input></el-form-item></el-col>
-        <el-col :xs="24" :sm="8"><el-form-item label="车辆(万)"><el-input type="number" v-model="form.assetCar"></el-input></el-form-item></el-col>
-        <el-col :xs="24" :sm="8"><el-form-item label="存款理财(万)"><el-input type="number" v-model="form.assetDeposit"></el-input></el-form-item></el-col>
-      </el-row>
-      <el-row :gutter="15">
-        <el-col :xs="24" :sm="8"><el-form-item label="土地林地(万)"><el-input type="number" v-model="form.assetLand"></el-input></el-form-item></el-col>
-        <el-col :xs="24" :sm="8"><el-form-item label="他行贷款(万)"><el-input type="number" v-model="form.debtOtherBank"></el-input></el-form-item></el-col>
-        <el-col :xs="24" :sm="8"><el-form-item label="信用卡(万)"><el-input type="number" v-model="form.debtCreditCard"></el-input></el-form-item></el-col>
-      </el-row>
-
-      <div style="background:#f4f4f5; border-radius:6px; padding: 15px; margin-top: 10px;">
-        <el-row :gutter="15">
-          <el-col :xs="24" :sm="8"><el-form-item label="生活成本(万)"><el-input type="number" v-model="form.livingCost" @input="handleManualInput"></el-input></el-form-item></el-col>
-          <el-col :xs="24" :sm="8"><el-form-item label="额外收入(万)"><el-input type="number" v-model="form.extraIncome" @input="handleManualInput"></el-input></el-form-item></el-col>
-          <el-col :xs="24" :sm="8"><el-form-item label="本次申请(万)"><el-input type="number" v-model="form.applyAmount"></el-input></el-form-item></el-col>
-        </el-row>
-        <div style="font-size: 12px; color: #909399; margin-top: 5px;">* 生活成本和额外收入将计入家庭总收支比。</div>
-      </div>
-
-      <div class="debt-panel">
-        <div class="debt-row">
-          <div class="debt-item">
-            <div class="debt-label">总资产</div>
-            <div class="debt-val" style="color: #409EFF;">{{ totalAssets.toFixed(1) }}</div>
-          </div>
-          <div class="debt-item">
-            <div class="debt-label">总负债</div>
-            <div class="debt-val" style="color: #F56C6C;">{{ totalDebts.toFixed(1) }}</div>
-          </div>
-          <div class="debt-item">
-            <div class="debt-label">负债率</div>
-            <div class="debt-val" :style="{color: debtRatio > 0.7 ? '#F56C6C' : '#67C23A'}">
-              {{ (debtRatio * 100).toFixed(1) }}%
+            <div class="slider-panel">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; color:#d48806; margin-bottom:15px; align-items: center;">
+                    <span style="font-size: 14px;">⚙️ 上年家庭收支比</span>
+                    <span style="font-size: 18px;">{{ (realRatio * 100).toFixed(1) }}%</span>
+                </div>
+                <el-slider
+                        v-model="sliderVal"
+                        :min="10" :max="90" :step="0.1"
+                        @input="handleSliderInput"
+                        :disabled="lockCost && lockInc"
+                        size="small">
+                </el-slider>
+                <div class="calc-res">
+                    <span>总收入: {{ (totalFamilyIncome/10000).toFixed(3) }} 万</span>
+                    <span>总支出: {{ (totalFamilyCost/10000).toFixed(3) }} 万</span>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <el-button type="success" size="large" style="width:100%; height:50px; font-size:16px; font-weight:bold; margin-top: 10px;" @click="exportExcel">
-      📥 下载最终版 Excel
-    </el-button>
-    <div style="height: 50px;"></div> </el-form>
+            <el-row :gutter="15" style="margin-top:20px;">
+                <el-col :xs="24" :sm="12">
+                    <el-form-item label="亩均投入(元)">
+                        <el-input
+                                v-model.number="form.costPerMu"
+                                type="number"
+                                @input="() => { lockCost = true; handleManualInput(); }"
+                                placeholder="可手输">
+                            <template #suffix>
+                                <el-checkbox v-model="lockCost" label="锁定" size="small" />
+                            </template>
+                        </el-input>
+                        <div class="input-suffix-text">范围: {{currentRange.minCost}}-{{currentRange.maxCost}}</div>
+                    </el-form-item>
+                </el-col>
+                <el-col :xs="24" :sm="12">
+                    <el-form-item label="亩均产出(元)">
+                        <el-input
+                                v-model.number="form.incomePerMu"
+                                type="number"
+                                @input="() => { lockInc = true; handleManualInput(); }"
+                                placeholder="可手输">
+                            <template #suffix>
+                                <el-checkbox v-model="lockInc" label="锁定" size="small" />
+                            </template>
+                        </el-input>
+                        <div class="input-suffix-text">范围: {{currentRange.minInc}}-{{currentRange.maxInc}}</div>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-row :gutter="10" style="margin-bottom: 10px;">
+                <el-col :xs="24" :sm="12">
+                    <div class="summary-card">
+                        <div class="summary-label">📊 年种植总投入 (纯经营)</div>
+                        <div class="summary-val">{{ (form.area * form.costPerMu).toLocaleString() }}</div>
+                        <div class="summary-sub">≈ {{ ((form.area * form.costPerMu) / 10000).toFixed(4) }} 万元</div>
+                    </div>
+                </el-col>
+                <el-col :xs="24" :sm="12">
+                    <div class="summary-card">
+                        <div class="summary-label">💰 年种植总产出 (纯经营)</div>
+                        <div class="summary-val">{{ (form.area * form.incomePerMu).toLocaleString() }}</div>
+                        <div class="summary-sub">≈ {{ ((form.area * form.incomePerMu) / 10000).toFixed(4) }} 万元</div>
+                    </div>
+                </el-col>
+            </el-row>
+
+            <div style="text-align: center; margin-top: 10px;">
+                <el-button type="primary" plain style="width: 100%;" @click="randomizeValues" :disabled="lockCost && lockInc">
+                    🎲 智能计算 / 随机微调
+                </el-button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <span class="section-title">3. 资产与负债</span>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="8"><el-form-item label="房产(万)"><el-input type="number" v-model="form.assetHouse"></el-input></el-form-item></el-col>
+                <el-col :xs="24" :sm="8"><el-form-item label="车辆(万)"><el-input type="number" v-model="form.assetCar"></el-input></el-form-item></el-col>
+                <el-col :xs="24" :sm="8"><el-form-item label="存款理财(万)"><el-input type="number" v-model="form.assetDeposit"></el-input></el-form-item></el-col>
+            </el-row>
+            <el-row :gutter="15">
+                <el-col :xs="24" :sm="8"><el-form-item label="土地林地(万)"><el-input type="number" v-model="form.assetLand"></el-input></el-form-item></el-col>
+                <el-col :xs="24" :sm="8"><el-form-item label="他行贷款(万)"><el-input type="number" v-model="form.debtOtherBank"></el-input></el-form-item></el-col>
+                <el-col :xs="24" :sm="8"><el-form-item label="信用卡(万)"><el-input type="number" v-model="form.debtCreditCard"></el-input></el-form-item></el-col>
+            </el-row>
+
+            <div style="background:#f4f4f5; border-radius:6px; padding: 15px; margin-top: 10px;">
+                <el-row :gutter="15">
+                    <el-col :xs="24" :sm="8"><el-form-item label="生活成本(万)"><el-input type="number" v-model="form.livingCost" @input="handleManualInput"></el-input></el-form-item></el-col>
+                    <el-col :xs="24" :sm="8"><el-form-item label="额外收入(万)"><el-input type="number" v-model="form.extraIncome" @input="handleManualInput"></el-input></el-form-item></el-col>
+                    <el-col :xs="24" :sm="8"><el-form-item label="本次申请(万)"><el-input type="number" v-model="form.applyAmount"></el-input></el-form-item></el-col>
+                </el-row>
+                <div style="font-size: 12px; color: #909399; margin-top: 5px;">* 生活成本和额外收入将计入家庭总收支比。</div>
+            </div>
+
+            <div class="debt-panel">
+                <div class="debt-row">
+                    <div class="debt-item">
+                        <div class="debt-label">总资产</div>
+                        <div class="debt-val" style="color: #409EFF;">{{ totalAssets.toFixed(1) }}</div>
+                    </div>
+                    <div class="debt-item">
+                        <div class="debt-label">总负债</div>
+                        <div class="debt-val" style="color: #F56C6C;">{{ totalDebts.toFixed(1) }}</div>
+                    </div>
+                    <div class="debt-item">
+                        <div class="debt-label">负债率</div>
+                        <div class="debt-val" :style="{color: debtRatio > 0.7 ? '#F56C6C' : '#67C23A'}">
+                            {{ (debtRatio * 100).toFixed(1) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <el-button type="success" size="large" style="width:100%; height:50px; font-size:16px; font-weight:bold; margin-top: 10px;" @click="exportExcel">
+            📥 下载最终版 Excel
+        </el-button>
+        <div style="height: 50px;"></div> </el-form>
 </div>
 
 <script>
-  const { createApp, reactive, computed, ref, onMounted, onUnmounted } = Vue;
+    const { createApp, reactive, computed, ref, onMounted, onUnmounted } = Vue;
 
-  const CROP_DB = {
-    "烤烟": { type: "农业", variety: "烟叶", minCost: 4237, maxCost: 4920, minInc: 8000, maxInc: 10000, limit: 500000 },
-    "枇杷": { type: "农业", variety: "枇杷", minCost: 7375, maxCost: 7900, minInc: 14000, maxInc: 20000, limit: 100000 },
-    "葡萄": { type: "农业", variety: "葡萄籽", minCost: 20200, maxCost: 24500, minInc: 35000, maxInc: 40000, limit: 500000 },
-    "蓝莓": { type: "农业", variety: "其他水果籽", minCost: 32000, maxCost: 35000, minInc: 63000, maxInc: 100000, limit: 500000 }
-  };
+    const CROP_DB = {
+        "烤烟": { type: "农业", variety: "烟叶", minCost: 4237, maxCost: 4920, minInc: 8000, maxInc: 10000, limit: 500000 },
+        "枇杷": { type: "农业", variety: "枇杷", minCost: 7375, maxCost: 7900, minInc: 14000, maxInc: 20000, limit: 100000 },
+        "葡萄": { type: "农业", variety: "葡萄籽", minCost: 20200, maxCost: 24500, minInc: 35000, maxInc: 40000, limit: 500000 },
+        "蓝莓": { type: "农业", variety: "其他水果籽", minCost: 32000, maxCost: 35000, minInc: 63000, maxInc: 100000, limit: 500000 }
+    };
 
-  const App = {
-    setup() {
-      // 响应式检测屏幕宽度
-      const isMobile = ref(window.innerWidth < 768);
-      const updateWidth = () => { isMobile.value = window.innerWidth < 768; };
-      onMounted(() => window.addEventListener('resize', updateWidth));
-      onUnmounted(() => window.removeEventListener('resize', updateWidth));
+    const App = {
+        setup() {
+            // 响应式检测屏幕宽度
+            const isMobile = ref(window.innerWidth < 768);
+            const updateWidth = () => { isMobile.value = window.innerWidth < 768; };
+            onMounted(() => window.addEventListener('resize', updateWidth));
+            onUnmounted(() => window.removeEventListener('resize', updateWidth));
 
-      const form = reactive({
-        name: '杨经理',
-        idCard: '53***************8',
-        phone: '15********5',
-        address: '云南省红河州蒙自',
-        marriage: '未婚',
-        cropType: '蓝莓',
-        area: 10,
-        years: 1,
-        costPerMu: 32575,
-        incomePerMu: 76341,
-        assetHouse: 60, assetCar: 10, assetDeposit: 8, assetLand: 8, assetOther: 0,
-        debtOtherBank: 0, debtCreditCard: 0, applyAmount: 30,
-        livingCost: 4.1477, extraIncome: 0
-      });
+            const form = reactive({
+                name: '杨经理',
+                idCard: '53*************3',
+                phone: '15*********5',
+                address: '云南省红河州蒙自',
+                marriage: '未婚',
+                cropType: '蓝莓',
+                area: 10,
+                years: 1,
+                costPerMu: 32575,
+                incomePerMu: 76341,
+                assetHouse: 60, assetCar: 10, assetDeposit: 8, assetLand: 8, assetOther: 0,
+                debtOtherBank: 0, debtCreditCard: 0, applyAmount: 30,
+                livingCost: 4.1477, extraIncome: 0
+            });
 
-      const sliderVal = ref(48.1);
-      const lockCost = ref(false);
-      const lockInc = ref(false);
+            const sliderVal = ref(48.1);
+            const lockCost = ref(false);
+            const lockInc = ref(false);
 
-      const currentRange = computed(() => CROP_DB[form.cropType] || {});
-      const currentCropVariety = computed(() => currentRange.value.variety || "");
+            const currentRange = computed(() => CROP_DB[form.cropType] || {});
+            const currentCropVariety = computed(() => currentRange.value.variety || "");
 
-      const totalAssets = computed(() => parseFloat(form.assetHouse || 0) + parseFloat(form.assetCar || 0) + parseFloat(form.assetDeposit || 0) + parseFloat(form.assetLand || 0) + parseFloat(form.assetOther || 0));
-      const totalDebts = computed(() => parseFloat(form.debtOtherBank || 0) + parseFloat(form.debtCreditCard || 0) + parseFloat(form.applyAmount || 0));
-      const debtRatio = computed(() => totalAssets.value ? totalDebts.value / totalAssets.value : 0);
+            const totalAssets = computed(() => parseFloat(form.assetHouse || 0) + parseFloat(form.assetCar || 0) + parseFloat(form.assetDeposit || 0) + parseFloat(form.assetLand || 0) + parseFloat(form.assetOther || 0));
+            const totalDebts = computed(() => parseFloat(form.debtOtherBank || 0) + parseFloat(form.debtCreditCard || 0) + parseFloat(form.applyAmount || 0));
+            const debtRatio = computed(() => totalAssets.value ? totalDebts.value / totalAssets.value : 0);
 
-      const operatingCost = computed(() => parseFloat(form.costPerMu || 0) * form.area);
-      const operatingIncome = computed(() => parseFloat(form.incomePerMu || 0) * form.area);
+            const operatingCost = computed(() => parseFloat(form.costPerMu || 0) * form.area);
+            const operatingIncome = computed(() => parseFloat(form.incomePerMu || 0) * form.area);
 
-      const totalFamilyCost = computed(() => operatingCost.value + (parseFloat(form.livingCost || 0) * 10000));
-      const totalFamilyIncome = computed(() => operatingIncome.value + (parseFloat(form.extraIncome || 0) * 10000));
+            const totalFamilyCost = computed(() => operatingCost.value + (parseFloat(form.livingCost || 0) * 10000));
+            const totalFamilyIncome = computed(() => operatingIncome.value + (parseFloat(form.extraIncome || 0) * 10000));
 
-      const realRatio = computed(() => totalFamilyIncome.value === 0 ? 0 : totalFamilyCost.value / totalFamilyIncome.value);
+            const realRatio = computed(() => totalFamilyIncome.value === 0 ? 0 : totalFamilyCost.value / totalFamilyIncome.value);
 
-      const lockStatusText = computed(() => {
-        if(lockCost.value && lockInc.value) return "全锁定";
-        if(lockCost.value) return "锁定投入";
-        if(lockInc.value) return "锁定产出";
-        return "自动模式";
-      });
+            const lockStatusText = computed(() => {
+                if(lockCost.value && lockInc.value) return "全锁定";
+                if(lockCost.value) return "锁定投入";
+                if(lockInc.value) return "锁定产出";
+                return "自动模式";
+            });
 
-      const handleCropChange = () => {
-        lockCost.value = false;
-        lockInc.value = false;
-        solveForValues(sliderVal.value / 100);
-      };
+            const handleCropChange = () => {
+                lockCost.value = false;
+                lockInc.value = false;
+                solveForValues(sliderVal.value / 100);
+            };
 
-      const handleSliderInput = (val) => solveForValues(val / 100);
+            const handleSliderInput = (val) => solveForValues(val / 100);
 
-      const handleManualInput = () => {
-        if(totalFamilyIncome.value > 0) {
-          const r = totalFamilyCost.value / totalFamilyIncome.value;
-          sliderVal.value = parseFloat((r * 100).toFixed(1));
+            const handleManualInput = () => {
+                if(totalFamilyIncome.value > 0) {
+                    const r = totalFamilyCost.value / totalFamilyIncome.value;
+                    sliderVal.value = parseFloat((r * 100).toFixed(1));
+                }
+            };
+
+            const randomizeValues = () => {
+                solveForValues(sliderVal.value / 100, true);
+                sliderVal.value = parseFloat((realRatio.value * 100).toFixed(1));
+            };
+
+            const solveForValues = (targetRatio, forceRandom = false) => {
+                if (lockCost.value && lockInc.value) return;
+
+                const range = currentRange.value;
+                const area = form.area;
+                const living = form.livingCost * 10000;
+                const extra = form.extraIncome * 10000;
+
+                if (lockCost.value) {
+                    const fixedCost = form.costPerMu;
+                    let num = (fixedCost * area) + living;
+                    let den = targetRatio;
+                    if(den === 0) den = 0.01;
+                    let calcInc = ( (num / den) - extra ) / area;
+
+                    if (calcInc < range.minInc) calcInc = range.minInc;
+                    if (calcInc > range.maxInc) calcInc = range.maxInc;
+                    form.incomePerMu = Math.floor(calcInc);
+                    return;
+                }
+
+                if (lockInc.value) {
+                    const fixedInc = form.incomePerMu;
+                    let totalInc = (fixedInc * area) + extra;
+                    let calcCost = ( (targetRatio * totalInc) - living ) / area;
+
+                    if (calcCost < range.minCost) calcCost = range.minCost;
+                    if (calcCost > range.maxCost) calcCost = range.maxCost;
+                    form.costPerMu = Math.floor(calcCost);
+                    return;
+                }
+
+                const attempts = forceRandom ? 50 : 20;
+                for (let i = 0; i < attempts; i++) {
+                    let randInc = Math.floor(Math.random() * (range.maxInc - range.minInc + 1) + range.minInc);
+                    let totalInc = (randInc * area) + extra;
+                    let derivedCost = ( (targetRatio * totalInc) - living ) / area;
+
+                    if (derivedCost >= range.minCost && derivedCost <= range.maxCost) {
+                        form.incomePerMu = randInc;
+                        form.costPerMu = Math.floor(derivedCost);
+                        return;
+                    }
+                }
+                let midInc = Math.floor((range.minInc + range.maxInc) / 2);
+                let totalInc = (midInc * area) + extra;
+                let forcedCost = ( (targetRatio * totalInc) - living ) / area;
+                if (forcedCost < range.minCost) forcedCost = range.minCost;
+                if (forcedCost > range.maxCost) forcedCost = range.maxCost;
+                form.incomePerMu = midInc;
+                form.costPerMu = Math.floor(forcedCost);
+            };
+
+            const exportExcel = async () => {
+                const workbook = new ExcelJS.Workbook();
+                const styleWrapIndent = { wrapText: true, vertical: 'middle', horizontal: 'left', indent: 1 };
+                const styleCenter = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                const borderAll = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
+
+                const ws1 = workbook.addWorksheet('1.客户经理录入台账');
+                ws1.columns = [{ width: 25 }, { width: 50 }];
+                const sheet1Data = [
+                    ["字段名称", "录入内容"],
+                    ["客户姓名", form.name], ["身份证号", form.idCard], ["电话", form.phone], ["居住地址", form.address],
+                    ["婚姻状况", form.marriage], ["产业类型", form.cropType], ["细分品种", currentCropVariety.value],
+                    ["种植规模(亩)", form.area], ["种植年限(年)", form.years],
+                    ["亩均成本(元)", form.costPerMu], ["亩均收入(元)", form.incomePerMu],
+                    ["年种植总成本(万元)", (operatingCost.value/10000).toFixed(4)], ["年种植总收入(万元)", (operatingIncome.value/10000).toFixed(4)],
+                    ["房产价值(万)", form.assetHouse], ["车辆价值(万)", form.assetCar], ["存款理财(万)", form.assetDeposit], ["土地林地(万)", form.assetLand],
+                    ["他行贷款(万)", form.debtOtherBank], ["信用卡(万)", form.debtCreditCard], ["本次申请(万)", form.applyAmount],
+                    ["生活成本(万)", form.livingCost], ["额外收入(万)", form.extraIncome],
+                    ["家庭总支出(万)", (totalFamilyCost.value/10000).toFixed(4)], ["家庭总收入(万)", (totalFamilyIncome.value/10000).toFixed(4)]
+                ];
+                sheet1Data.forEach((row, index) => {
+                    const r = ws1.addRow(row);
+                    const cellKey = r.getCell(1); const cellVal = r.getCell(2);
+                    cellKey.border = borderAll; cellVal.border = borderAll;
+                    cellKey.alignment = styleCenter; cellVal.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
+                    if(index === 0) {
+                        r.font = { bold: true, size: 12 };
+                        cellKey.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
+                        cellVal.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
+                    } else {
+                        cellKey.font = { bold: true };
+                        cellKey.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } };
+                    }
+                });
+
+                const ws2 = workbook.addWorksheet('2.产业参数库(勿动)');
+                ws2.addRow(["产业名称", "产业类型", "细分品种", "亩均成本下限", "亩均成本上限", "亩均收入下限", "亩均收入上限", "指导额度上限"]);
+                for(let k in CROP_DB) {
+                    let d = CROP_DB[k];
+                    ws2.addRow([k, d.type, d.variety, d.minCost, d.maxCost, d.minInc, d.maxInc, d.limit]);
+                }
+
+                const ws3 = workbook.addWorksheet('3.风险评价表(打印)');
+                ws3.columns = [{ width: 12 }, { width: 14 }, { width: 20 }, { width: 14 }, { width: 25 }];
+                ws3.mergeCells('A1:E1'); const t1 = ws3.getCell('A1'); t1.value = '“裕农快贷”风险评价表'; t1.font = { size: 18, bold: true, name: '宋体' }; t1.alignment = styleCenter; t1.border = borderAll;
+                ws3.mergeCells('A2:A7'); const t2 = ws3.getCell('A2'); t2.value = '基本情况'; t2.alignment = styleCenter; t2.border = borderAll;
+
+                const basicRows = [['客户姓名', form.name, '身份证号码', form.idCard], ['从事行业', form.cropType, '电话', form.phone], ['种植规模', form.area + ' 亩', '居住地址', form.address], ['贷款额度', form.applyAmount + ' 万元', '授信期限', '36 个月'], ['贷款用途', '生产经营', '', ''], ['申贷类型', '', '', '']];
+                basicRows.forEach((r, idx) => {
+                    let rowNum = idx + 2; ws3.getCell(`B${rowNum}`).value = r[0]; ws3.getCell(`C${rowNum}`).value = r[1]; ws3.getCell(`D${rowNum}`).value = r[2]; ws3.getCell(`E${rowNum}`).value = r[3];
+                    ['B','C','D','E'].forEach(c => { let cell = ws3.getCell(c + rowNum); cell.border = borderAll; cell.alignment = c === 'B' || c === 'D' ? styleCenter : { ...styleWrapIndent, indent: 0, horizontal: 'center' }; cell.font = { size: 10, name: '宋体' }; });
+                });
+                ws3.mergeCells('C6:E6'); ws3.mergeCells('C7:E7');
+
+                ws3.mergeCells('A8:E8'); ws3.getCell('A8').value = '风险评价与分析'; ws3.getCell('A8').font = { bold: true }; ws3.getCell('A8').alignment = { vertical: 'middle', horizontal: 'left', indent: 1 }; ws3.getCell('A8').border = borderAll; ws3.getCell('A8').fill = {type: 'pattern', pattern:'solid', fgColor:{argb:'FFF0F0F0'}};
+
+                ws3.mergeCells('A9:E9'); ws3.getCell('A9').value = '1. 借款人经营情况。'; ws3.getCell('A9').border = borderAll; ws3.getCell('A9').alignment = styleWrapIndent;
+
+                ws3.mergeCells('A10:E10'); ws3.getCell('A10').value = `借款人从事经营行业范围：☑农业 □林业 □牧业 □渔业 □涉农二、三产业 □其他行业：___，\n上一年度经营成本 ${(operatingCost.value/10000).toFixed(2)} 万元，上一年度经营收入 ${(operatingIncome.value/10000).toFixed(2)} 万元，\n□是 □否 购买农业保险，其它 _______`; ws3.getCell('A10').border = borderAll; ws3.getCell('A10').alignment = { ...styleWrapIndent, vertical: 'top' }; ws3.getRow(10).height = 60;
+
+                ws3.mergeCells('A11:E11'); ws3.getCell('A11').value = '2. 借款人资产负债情况。'; ws3.getCell('A11').border = borderAll; ws3.getCell('A11').alignment = styleWrapIndent;
+                ws3.mergeCells('A12:E13'); ws3.getCell('A12').value = `①借款人家庭总资产 ${totalAssets.value} 万元，其中：房产 ${form.assetHouse} 万元，车产 ${form.assetCar} 万元，商铺 0 万元，金融资产 ${form.assetDeposit} 万元，土地(或林地) ${form.assetLand} 万元。\n②借款人家庭总负债 ${totalDebts.value} 万元，其中：他行贷款 ${form.debtOtherBank} 万元，信用卡 ${form.debtCreditCard} 万元，本次拟申请 ${form.applyAmount} 万元。\n③借款人家庭资产负债比为 ${(debtRatio.value*100).toFixed(1)}%。`; ws3.getCell('A12').border = borderAll; ws3.getCell('A12').alignment = { ...styleWrapIndent, vertical: 'top' }; ws3.getRow(12).height = 90;
+
+                ws3.mergeCells('A14:E14'); ws3.getCell('A14').value = '3. 信用状况：客户已通过自动审批模型。'; ws3.getCell('A14').border = borderAll; ws3.getCell('A14').alignment = styleWrapIndent;
+                ws3.mergeCells('A15:E15'); ws3.getCell('A15').value = '4. 偿债能力分析。'; ws3.getCell('A15').border = borderAll; ws3.getCell('A15').alignment = styleWrapIndent;
+                ws3.mergeCells('A16:E16'); ws3.getCell('A16').value = '6. 其它说明情况（自动生成）'; ws3.getCell('A16').border = borderAll; ws3.getCell('A16').alignment = styleWrapIndent;
+
+                ws3.mergeCells('A17:E20'); ws3.getCell('A17').value = `经调查核实，借款人${form.name}，家庭总资产为${totalAssets.value.toFixed(1)}万元，家庭存量总负债${totalDebts.value.toFixed(1)}万元，\n含此次申贷${form.applyAmount}万元，家庭资产负债比为${(debtRatio.value*100).toFixed(1)}%。上一年度家庭总收入为${(totalFamilyIncome.value/10000).toFixed(3)}万元，\n家庭总支出为${(totalFamilyCost.value/10000).toFixed(3)}万元（含生活成本）。该借款人经营${form.cropType}${form.area}亩，经营状况稳定，符合我行\n准入条件。`; ws3.getCell('A17').border = borderAll; ws3.getCell('A17').alignment = { ...styleWrapIndent, vertical: 'top' }; ws3.getRow(17).height = 110;
+
+                const ws4 = workbook.addWorksheet('会商表');
+                ws4.mergeCells('A1:F1'); ws4.getCell('A1').value = '附件4       中国建设银行信息建档会商记录'; ws4.getCell('A1').font = { size: 14, bold: true, name: '宋体' }; ws4.getCell('A1').alignment = styleCenter;
+                ws4.mergeCells('A4:H18');
+                const hsCell = ws4.getCell('A4');
+                hsCell.value = `客户${form.name}，身份证号码 ${form.idCard}；\n职业农民，主要种植${form.cropType}，种植规模${form.area}亩，现向我行申请经营贷款${form.applyAmount}万元，\n用于生产经营支出。客户名下自有房产${form.assetHouse}万元、车辆${form.assetCar}万元、金融资产${form.assetDeposit}万元、林地${form.assetLand}万元。\n经核实经营流水，上一年度经营收入${(operatingIncome.value/10000).toFixed(3)}万元、成本${(operatingCost.value/10000).toFixed(3)}万元，\n家庭总资产${totalAssets.value}万元、总负债${totalDebts.value}万元，资产负债率${(debtRatio.value*100).toFixed(4)}%，收入稳定，还款能力较好。\n\n-----------------------------------------------------------------------------------\n\n同意将${form.name}客户信息提交至下一审核环节。\n理由如下：经客户经理上门核实，客户经营正常，种植${form.cropType}${form.area}亩，经营收入稳定，\n贷款用途真实且与经营规模匹配，家庭资产负债结构合理，还款能力较好，同意申贷。`;
+
+                const greenBorder = { style: 'medium', color: { argb: 'FF00B050' } };
+                hsCell.border = { top: greenBorder, left: greenBorder, bottom: greenBorder, right: greenBorder };
+                hsCell.alignment = { vertical: 'top', wrapText: true, horizontal: 'left', indent: 1 };
+                hsCell.font = { name: '宋体', size: 12 };
+
+                const buffer = await workbook.xlsx.writeBuffer();
+                saveAs(new Blob([buffer]), `裕农快贷_智能准入工具yhf_${form.name}.xlsx`);
+            };
+
+            return {
+                form, cropDb: CROP_DB, currentRange, currentCropVariety,
+                totalAssets, totalDebts, debtRatio,
+                operatingCost, operatingIncome,
+                totalFamilyCost, totalFamilyIncome,
+                sliderVal, realRatio, lockCost, lockInc, lockStatusText, isMobile,
+                handleSliderInput, randomizeValues, handleCropChange, handleManualInput, exportExcel
+            };
         }
-      };
+    };
 
-      const randomizeValues = () => {
-        solveForValues(sliderVal.value / 100, true);
-        sliderVal.value = parseFloat((realRatio.value * 100).toFixed(1));
-      };
-
-      const solveForValues = (targetRatio, forceRandom = false) => {
-        if (lockCost.value && lockInc.value) return;
-
-        const range = currentRange.value;
-        const area = form.area;
-        const living = form.livingCost * 10000;
-        const extra = form.extraIncome * 10000;
-
-        if (lockCost.value) {
-          const fixedCost = form.costPerMu;
-          let num = (fixedCost * area) + living;
-          let den = targetRatio;
-          if(den === 0) den = 0.01;
-          let calcInc = ( (num / den) - extra ) / area;
-
-          if (calcInc < range.minInc) calcInc = range.minInc;
-          if (calcInc > range.maxInc) calcInc = range.maxInc;
-          form.incomePerMu = Math.floor(calcInc);
-          return;
-        }
-
-        if (lockInc.value) {
-          const fixedInc = form.incomePerMu;
-          let totalInc = (fixedInc * area) + extra;
-          let calcCost = ( (targetRatio * totalInc) - living ) / area;
-
-          if (calcCost < range.minCost) calcCost = range.minCost;
-          if (calcCost > range.maxCost) calcCost = range.maxCost;
-          form.costPerMu = Math.floor(calcCost);
-          return;
-        }
-
-        const attempts = forceRandom ? 50 : 20;
-        for (let i = 0; i < attempts; i++) {
-          let randInc = Math.floor(Math.random() * (range.maxInc - range.minInc + 1) + range.minInc);
-          let totalInc = (randInc * area) + extra;
-          let derivedCost = ( (targetRatio * totalInc) - living ) / area;
-
-          if (derivedCost >= range.minCost && derivedCost <= range.maxCost) {
-            form.incomePerMu = randInc;
-            form.costPerMu = Math.floor(derivedCost);
-            return;
-          }
-        }
-        let midInc = Math.floor((range.minInc + range.maxInc) / 2);
-        let totalInc = (midInc * area) + extra;
-        let forcedCost = ( (targetRatio * totalInc) - living ) / area;
-        if (forcedCost < range.minCost) forcedCost = range.minCost;
-        if (forcedCost > range.maxCost) forcedCost = range.maxCost;
-        form.incomePerMu = midInc;
-        form.costPerMu = Math.floor(forcedCost);
-      };
-
-      const exportExcel = async () => {
-        const workbook = new ExcelJS.Workbook();
-        const styleWrapIndent = { wrapText: true, vertical: 'middle', horizontal: 'left', indent: 1 };
-        const styleCenter = { vertical: 'middle', horizontal: 'center', wrapText: true };
-        const borderAll = { top: {style:'thin'}, left: {style:'thin'}, bottom: {style:'thin'}, right: {style:'thin'} };
-
-        const ws1 = workbook.addWorksheet('1.客户经理录入台账');
-        ws1.columns = [{ width: 25 }, { width: 50 }];
-        const sheet1Data = [
-          ["字段名称", "录入内容"],
-          ["客户姓名", form.name], ["身份证号", form.idCard], ["电话", form.phone], ["居住地址", form.address],
-          ["婚姻状况", form.marriage], ["产业类型", form.cropType], ["细分品种", currentCropVariety.value],
-          ["种植规模(亩)", form.area], ["种植年限(年)", form.years],
-          ["亩均成本(元)", form.costPerMu], ["亩均收入(元)", form.incomePerMu],
-          ["年种植总成本(万元)", (operatingCost.value/10000).toFixed(4)], ["年种植总收入(万元)", (operatingIncome.value/10000).toFixed(4)],
-          ["房产价值(万)", form.assetHouse], ["车辆价值(万)", form.assetCar], ["存款理财(万)", form.assetDeposit], ["土地林地(万)", form.assetLand],
-          ["他行贷款(万)", form.debtOtherBank], ["信用卡(万)", form.debtCreditCard], ["本次申请(万)", form.applyAmount],
-          ["生活成本(万)", form.livingCost], ["额外收入(万)", form.extraIncome],
-          ["家庭总支出(万)", (totalFamilyCost.value/10000).toFixed(4)], ["家庭总收入(万)", (totalFamilyIncome.value/10000).toFixed(4)]
-        ];
-        sheet1Data.forEach((row, index) => {
-          const r = ws1.addRow(row);
-          const cellKey = r.getCell(1); const cellVal = r.getCell(2);
-          cellKey.border = borderAll; cellVal.border = borderAll;
-          cellKey.alignment = styleCenter; cellVal.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
-          if(index === 0) {
-            r.font = { bold: true, size: 12 };
-            cellKey.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
-            cellVal.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD9D9D9' } };
-          } else {
-            cellKey.font = { bold: true };
-            cellKey.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF2F2F2' } };
-          }
-        });
-
-        const ws2 = workbook.addWorksheet('2.产业参数库(勿动)');
-        ws2.addRow(["产业名称", "产业类型", "细分品种", "亩均成本下限", "亩均成本上限", "亩均收入下限", "亩均收入上限", "指导额度上限"]);
-        for(let k in CROP_DB) {
-          let d = CROP_DB[k];
-          ws2.addRow([k, d.type, d.variety, d.minCost, d.maxCost, d.minInc, d.maxInc, d.limit]);
-        }
-
-        const ws3 = workbook.addWorksheet('3.风险评价表(打印)');
-        ws3.columns = [{ width: 12 }, { width: 14 }, { width: 20 }, { width: 14 }, { width: 25 }];
-        ws3.mergeCells('A1:E1'); const t1 = ws3.getCell('A1'); t1.value = '“裕农快贷”风险评价表'; t1.font = { size: 18, bold: true, name: '宋体' }; t1.alignment = styleCenter; t1.border = borderAll;
-        ws3.mergeCells('A2:A7'); const t2 = ws3.getCell('A2'); t2.value = '基本情况'; t2.alignment = styleCenter; t2.border = borderAll;
-
-        const basicRows = [['客户姓名', form.name, '身份证号码', form.idCard], ['从事行业', form.cropType, '电话', form.phone], ['种植规模', form.area + ' 亩', '居住地址', form.address], ['贷款额度', form.applyAmount + ' 万元', '授信期限', '36 个月'], ['贷款用途', '生产经营', '', ''], ['申贷类型', '', '', '']];
-        basicRows.forEach((r, idx) => {
-          let rowNum = idx + 2; ws3.getCell(`B${rowNum}`).value = r[0]; ws3.getCell(`C${rowNum}`).value = r[1]; ws3.getCell(`D${rowNum}`).value = r[2]; ws3.getCell(`E${rowNum}`).value = r[3];
-          ['B','C','D','E'].forEach(c => { let cell = ws3.getCell(c + rowNum); cell.border = borderAll; cell.alignment = c === 'B' || c === 'D' ? styleCenter : { ...styleWrapIndent, indent: 0, horizontal: 'center' }; cell.font = { size: 10, name: '宋体' }; });
-        });
-        ws3.mergeCells('C6:E6'); ws3.mergeCells('C7:E7');
-
-        ws3.mergeCells('A8:E8'); ws3.getCell('A8').value = '风险评价与分析'; ws3.getCell('A8').font = { bold: true }; ws3.getCell('A8').alignment = { vertical: 'middle', horizontal: 'left', indent: 1 }; ws3.getCell('A8').border = borderAll; ws3.getCell('A8').fill = {type: 'pattern', pattern:'solid', fgColor:{argb:'FFF0F0F0'}};
-
-        ws3.mergeCells('A9:E9'); ws3.getCell('A9').value = '1. 借款人经营情况。'; ws3.getCell('A9').border = borderAll; ws3.getCell('A9').alignment = styleWrapIndent;
-
-        ws3.mergeCells('A10:E10'); ws3.getCell('A10').value = `借款人从事经营行业范围：☑农业 □林业 □牧业 □渔业 □涉农二、三产业 □其他行业：___，\n上一年度经营成本 ${(operatingCost.value/10000).toFixed(2)} 万元，上一年度经营收入 ${(operatingIncome.value/10000).toFixed(2)} 万元，\n□是 □否 购买农业保险，其它 _______`; ws3.getCell('A10').border = borderAll; ws3.getCell('A10').alignment = { ...styleWrapIndent, vertical: 'top' }; ws3.getRow(10).height = 60;
-
-        ws3.mergeCells('A11:E11'); ws3.getCell('A11').value = '2. 借款人资产负债情况。'; ws3.getCell('A11').border = borderAll; ws3.getCell('A11').alignment = styleWrapIndent;
-        ws3.mergeCells('A12:E13'); ws3.getCell('A12').value = `①借款人家庭总资产 ${totalAssets.value} 万元，其中：房产 ${form.assetHouse} 万元，车产 ${form.assetCar} 万元，商铺 0 万元，金融资产 ${form.assetDeposit} 万元，土地(或林地) ${form.assetLand} 万元。\n②借款人家庭总负债 ${totalDebts.value} 万元，其中：他行贷款 ${form.debtOtherBank} 万元，信用卡 ${form.debtCreditCard} 万元，本次拟申请 ${form.applyAmount} 万元。\n③借款人家庭资产负债比为 ${(debtRatio.value*100).toFixed(1)}%。`; ws3.getCell('A12').border = borderAll; ws3.getCell('A12').alignment = { ...styleWrapIndent, vertical: 'top' }; ws3.getRow(12).height = 90;
-
-        ws3.mergeCells('A14:E14'); ws3.getCell('A14').value = '3. 信用状况：客户已通过自动审批模型。'; ws3.getCell('A14').border = borderAll; ws3.getCell('A14').alignment = styleWrapIndent;
-        ws3.mergeCells('A15:E15'); ws3.getCell('A15').value = '4. 偿债能力分析。'; ws3.getCell('A15').border = borderAll; ws3.getCell('A15').alignment = styleWrapIndent;
-        ws3.mergeCells('A16:E16'); ws3.getCell('A16').value = '6. 其它说明情况（自动生成）'; ws3.getCell('A16').border = borderAll; ws3.getCell('A16').alignment = styleWrapIndent;
-
-        ws3.mergeCells('A17:E20'); ws3.getCell('A17').value = `经调查核实，借款人${form.name}，家庭总资产为${totalAssets.value.toFixed(1)}万元，家庭存量总负债${totalDebts.value.toFixed(1)}万元，\n含此次申贷${form.applyAmount}万元，家庭资产负债比为${(debtRatio.value*100).toFixed(1)}%。上一年度家庭总收入为${(totalFamilyIncome.value/10000).toFixed(3)}万元，\n家庭总支出为${(totalFamilyCost.value/10000).toFixed(3)}万元（含生活成本）。该借款人经营${form.cropType}${form.area}亩，经营状况稳定，符合我行\n准入条件。`; ws3.getCell('A17').border = borderAll; ws3.getCell('A17').alignment = { ...styleWrapIndent, vertical: 'top' }; ws3.getRow(17).height = 110;
-
-        const ws4 = workbook.addWorksheet('会商表');
-        ws4.mergeCells('A1:F1'); ws4.getCell('A1').value = '附件4       中国建设银行信息建档会商记录'; ws4.getCell('A1').font = { size: 14, bold: true, name: '宋体' }; ws4.getCell('A1').alignment = styleCenter;
-        ws4.mergeCells('A4:H18');
-        const hsCell = ws4.getCell('A4');
-        hsCell.value = `客户${form.name}，身份证号码 ${form.idCard}；\n职业农民，主要种植${form.cropType}，种植规模${form.area}亩，现向我行申请经营贷款${form.applyAmount}万元，\n用于生产经营支出。客户名下自有房产${form.assetHouse}万元、车辆${form.assetCar}万元、金融资产${form.assetDeposit}万元、林地${form.assetLand}万元。\n经核实经营流水，上一年度经营收入${(operatingIncome.value/10000).toFixed(3)}万元、成本${(operatingCost.value/10000).toFixed(3)}万元，\n家庭总资产${totalAssets.value}万元、总负债${totalDebts.value}万元，资产负债率${(debtRatio.value*100).toFixed(4)}%，收入稳定，还款能力较好。\n\n-----------------------------------------------------------------------------------\n\n同意将${form.name}客户信息提交至下一审核环节。\n理由如下：经客户经理上门核实，客户经营正常，种植${form.cropType}${form.area}亩，经营收入稳定，\n贷款用途真实且与经营规模匹配，家庭资产负债结构合理，还款能力较好，同意申贷。`;
-
-        const greenBorder = { style: 'medium', color: { argb: 'FF00B050' } };
-        hsCell.border = { top: greenBorder, left: greenBorder, bottom: greenBorder, right: greenBorder };
-        hsCell.alignment = { vertical: 'top', wrapText: true, horizontal: 'left', indent: 1 };
-        hsCell.font = { name: '宋体', size: 12 };
-
-        const buffer = await workbook.xlsx.writeBuffer();
-        saveAs(new Blob([buffer]), `裕农快贷_智能准入工具yhf_${form.name}.xlsx`);
-      };
-
-      return {
-        form, cropDb: CROP_DB, currentRange, currentCropVariety,
-        totalAssets, totalDebts, debtRatio,
-        operatingCost, operatingIncome,
-        totalFamilyCost, totalFamilyIncome,
-        sliderVal, realRatio, lockCost, lockInc, lockStatusText, isMobile,
-        handleSliderInput, randomizeValues, handleCropChange, handleManualInput, exportExcel
-      };
-    }
-  };
-
-  createApp(App).use(ElementPlus).mount('#app');
+    createApp(App).use(ElementPlus).mount('#app');
 </script>
 </body>
 </html>
+
