@@ -1,241 +1,370 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>裕农快贷 - 智能准入工具 (V12.0 移动适配版)</title>
+    <title>裕农快贷 - 智能准入工具 (V12.5 截图修复版)</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css" />
     <script src="https://unpkg.com/element-plus"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <style>
-        /* 全局重置 */
-        body { font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", Arial, sans-serif; background: #f2f3f5; margin: 0; padding: 10px; -webkit-tap-highlight-color: transparent; }
-
-        /* 容器适配：手机上铺满，电脑上居中 */
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        /* --- 核心设计变量 --- */
+        :root {
+            --primary-color: #2563eb;       /* 核心蓝 */
+            --primary-dark: #1e3a8a;        /* 深蓝 */
+            --accent-color: #f59e0b;        /* 强调色(橙) */
+            --success-color: #10b981;       /* 成功绿 */
+            --danger-color: #ef4444;        /* 警戒红 */
+            --bg-body: #f1f5f9;             /* 页面底色 */
+            --card-radius: 12px;            /* 卡片圆角 */
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
         }
 
-        .header { text-align: center; border-bottom: 2px solid #409EFF; margin-bottom: 20px; padding-bottom: 10px; }
-        .header h2 { font-size: 1.2rem; margin: 10px 0; color: #303133; }
-        .header p { font-size: 0.8rem; color: #909399; }
+        /* 全局重置 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background: var(--bg-body);
+            margin: 0;
+            padding: 15px;
+            -webkit-font-smoothing: antialiased;
+            color: #334155;
+        }
 
-        .section-box { border: 1px solid #ebedf0; border-radius: 6px; padding: 15px; margin-bottom: 20px; position: relative; background: #fff; }
-        .section-title { position: absolute; top: -10px; left: 10px; background: white; padding: 0 5px; font-weight: bold; color: #409EFF; font-size: 14px; }
+        /* 容器美化 */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: transparent;
+        }
 
-        .slider-panel { background: #fdf6ec; padding: 15px; border-radius: 6px; border: 1px dashed #e6a23c; margin-top: 15px; }
-        .calc-res { font-size: 12px; color: #909399; display: flex; justify-content: space-between; margin-top: 8px; flex-wrap: wrap; }
+        /* 头部 Hero 区域 */
+        .header-card {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            border-radius: var(--card-radius);
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header-card::after {
+            content: "";
+            position: absolute;
+            top: -50%; left: -20%; width: 200px; height: 200px;
+            background: rgba(255,255,255,0.1); border-radius: 50%;
+        }
+        .header-title { font-size: 1.4rem; font-weight: 700; margin: 0; letter-spacing: 1px; }
+        .header-sub { font-size: 0.85rem; opacity: 0.9; margin-top: 8px; font-weight: 300; }
 
-        /* 输入框样式微调 */
-        .input-suffix-text { font-size: 11px; color: #999; margin-top: 2px; }
+        /* 通用卡片样式 */
+        .section-box {
+            background: white;
+            border-radius: var(--card-radius);
+            box-shadow: var(--card-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .section-icon {
+            width: 4px;
+            height: 18px;
+            background: var(--primary-color);
+            border-radius: 2px;
+            margin-right: 10px;
+        }
+        .section-title-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
 
-        /* 统计卡片适配 */
-        .summary-card { background-color: #f8f9fa; border: 1px solid #ebeef5; border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 10px; }
-        .summary-label { font-size: 12px; color: #909399; margin-bottom: 4px; }
-        .summary-val { font-size: 16px; font-weight: bold; color: #303133; word-break: break-all; }
-        .summary-sub { font-size: 12px; color: #67C23A; margin-top: 2px; }
+        /* 经营画像 - 控制台面板 */
+        .slider-panel {
+            background: #fffbeb;
+            border: 1px solid #fef3c7;
+            border-radius: var(--card-radius);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .slider-header {
+            display: flex; justify-content: space-between; align-items: center;
+            color: #b45309; font-weight: 600; margin-bottom: 10px;
+        }
+        .calc-tags {
+            display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end;
+        }
+        .mini-tag {
+            font-size: 11px; background: rgba(255,255,255,0.6); padding: 2px 6px; border-radius: 4px; color: #92400e;
+        }
 
-        /* 资产负债率面板适配 */
-        .debt-panel { background-color: #ecf5ff; border: 1px solid #d9ecff; border-radius: 6px; padding: 15px; margin-top: 15px; }
-        .debt-row { display: flex; flex-wrap: wrap; }
-        .debt-item { text-align: center; width: 33.33%; border-right: 1px solid #d9ecff; box-sizing: border-box; }
-        .debt-item:last-child { border-right: none; }
-        .debt-label { font-size: 12px; color: #909399; margin-bottom: 5px; }
-        .debt-val { font-size: 16px; font-weight: bold; }
+        /* 统计卡片 */
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        .stat-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        .stat-val { font-size: 18px; font-weight: 700; color: #0f172a; font-family: 'DIN Alternate', sans-serif; }
+        .stat-sub { font-size: 12px; color: var(--success-color); margin-top: 2px; }
 
-        /* --- 移动端专用 CSS (屏幕宽度小于 768px) --- */
+        /* 资产负债 - 分组 */
+        .asset-group { background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .debt-group { background: #fef2f2; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .group-label { font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 10px; display: block; }
+
+        /* 结果面板 */
+        .debt-panel {
+            background: white;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .debt-row { display: flex; justify-content: space-around; align-items: center; }
+        .debt-item { text-align: center; }
+        .debt-label { font-size: 12px; color: #94a3b8; margin-bottom: 5px; }
+        .debt-val { font-size: 20px; font-weight: 800; font-family: 'DIN Alternate', sans-serif; }
+
+        /* 按钮与输入框微调 */
+        .action-bar { display: flex; gap: 15px; margin-top: 20px; }
+        .btn-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); transition: all 0.2s; border: none; }
+        .btn-shadow:active { transform: scale(0.98); box-shadow: none; }
+
+        .el-form-item__label { font-weight: 500; color: #475569; }
+        .el-input__wrapper { box-shadow: none !important; border: 1px solid #e2e8f0; background-color: #f8fafc; transition: all 0.3s; }
+        .el-input__wrapper:hover, .el-input__wrapper.is-focus { border-color: var(--primary-color); background-color: white; }
+
+        /* 参考范围文字美化 */
+        .input-suffix-text { font-size: 11px; color: #94a3b8; margin-top: 4px; text-align: right; display: flex; justify-content: flex-end; align-items: center; gap: 6px; }
+        .avg-tag { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; color: #64748b; font-weight: 600; }
+
         @media screen and (max-width: 768px) {
-            body { padding: 0; background: #fff; }
-            .container { padding: 15px; border-radius: 0; box-shadow: none; max-width: 100%; }
-
-            /* 强制输入框文字大小，防止缩放 */
-            .el-input__inner { font-size: 16px !important; }
-
-            /* 债务面板在小屏上改为垂直排列，或者保持水平但字变小 */
-            .debt-item { width: 100%; border-right: none; border-bottom: 1px solid #d9ecff; padding: 10px 0; display: flex; justify-content: space-between; align-items: center; padding-left: 10px; padding-right: 10px; }
-            .debt-item:last-child { border-bottom: none; }
-            .debt-label { margin-bottom: 0; }
+            body { padding: 10px; background: #f8fafc; }
+            .container { width: 100%; }
+            .header-card { padding: 20px 15px; border-radius: 0 0 15px 15px; margin-top: -10px; box-shadow: none; }
+            .stat-grid { gap: 10px; }
+            .action-bar { flex-direction: column; gap: 10px; }
+            .el-form-item { margin-bottom: 15px; }
         }
     </style>
 </head>
 <body>
 
 <div id="app" class="container">
-    <div class="header">
-        <h2>裕农快贷 · 智能准入工具 (V12.0)</h2>
-        <p>移动端自适应 | 收支分离 | 独立锁定</p>
-    </div>
-
-    <el-form :model="form" :label-width="isMobile ? 'auto' : '110px'" :label-position="isMobile ? 'top' : 'left'" size="default">
-
-        <div class="section-box">
-            <span class="section-title">1. 客户基本信息</span>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="12"><el-form-item label="客户姓名"><el-input v-model="form.name" placeholder="请输入"></el-input></el-form-item></el-col>
-                <el-col :xs="24" :sm="12"><el-form-item label="身份证号"><el-input v-model="form.idCard" placeholder="请输入"></el-input></el-form-item></el-col>
-            </el-row>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="12"><el-form-item label="联系电话"><el-input v-model="form.phone" type="tel" placeholder="请输入"></el-input></el-form-item></el-col>
-                <el-col :xs="24" :sm="12"><el-form-item label="居住地址"><el-input v-model="form.address" placeholder="请输入"></el-input></el-form-item></el-col>
-            </el-row>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="12"><el-form-item label="婚姻状况">
-                    <el-select v-model="form.marriage" style="width:100%">
-                        <el-option value="已婚" label="已婚"></el-option>
-                        <el-option value="未婚" label="未婚"></el-option>
-                        <el-option value="离异" label="离异"></el-option>
-                    </el-select>
-                </el-form-item></el-col>
-            </el-row>
+    <div id="capture-area">
+        <div class="header-card">
+            <h2 class="header-title">裕农快贷 · 智能准入</h2>
+            <div class="header-sub">V12.5 Pro | 智能测算 · 均值参考 · 风险透视</div>
         </div>
 
-        <div class="section-box">
-            <span class="section-title">2. 经营画像 (智能测算)</span>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="12">
-                    <el-form-item label="选择产业">
-                        <el-select v-model="form.cropType" @change="handleCropChange" style="width:100%">
-                            <el-option v-for="(v, k) in cropDb" :key="k" :label="k" :value="k"></el-option>
-                        </el-select>
-                    </el-form-item>
-                </el-col>
-                <el-col :xs="24" :sm="12"><el-form-item label="细分品种"><el-input v-model="currentCropVariety" disabled></el-input></el-form-item></el-col>
-            </el-row>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="12"><el-form-item label="种植规模(亩)"><el-input-number v-model="form.area" :min="1" style="width:100%" @change="handleManualInput"></el-input-number></el-form-item></el-col>
-                <el-col :xs="24" :sm="12"><el-form-item label="种植年限"><el-input-number v-model="form.years" :min="1" style="width:100%"></el-input-number></el-form-item></el-col>
-            </el-row>
+        <el-form :model="form" :label-width="isMobile ? 'auto' : '100px'" :label-position="isMobile ? 'top' : 'left'" size="default">
 
-            <el-divider content-position="center" style="margin: 20px 0;">收支控制台 ({{ isMobile && lockStatusText.length > 10 ? '已锁定' : lockStatusText }})</el-divider>
-
-            <div class="slider-panel">
-                <div style="display:flex; justify-content:space-between; font-weight:bold; color:#d48806; margin-bottom:15px; align-items: center;">
-                    <span style="font-size: 14px;">⚙️ 上年家庭收支比</span>
-                    <span style="font-size: 18px;">{{ (realRatio * 100).toFixed(1) }}%</span>
+            <div class="section-box">
+                <div class="section-header">
+                    <div class="section-icon"></div>
+                    <span class="section-title-text">客户基本信息</span>
                 </div>
-                <el-slider
-                        v-model="sliderVal"
-                        :min="10" :max="90" :step="0.1"
-                        @input="handleSliderInput"
-                        :disabled="lockCost && lockInc"
-                        size="small">
-                </el-slider>
-                <div class="calc-res">
-                    <span>总收入: {{ (totalFamilyIncome/10000).toFixed(3) }} 万</span>
-                    <span>总支出: {{ (totalFamilyCost/10000).toFixed(3) }} 万</span>
-                </div>
-            </div>
-
-            <el-row :gutter="15" style="margin-top:20px;">
-                <el-col :xs="24" :sm="12">
-                    <el-form-item label="亩均投入(元)">
-                        <el-input
-                                v-model.number="form.costPerMu"
-                                type="number"
-                                @input="() => { lockCost = true; handleManualInput(); }"
-                                placeholder="可手输">
-                            <template #suffix>
-                                <el-checkbox v-model="lockCost" label="锁定" size="small" />
-                            </template>
-                        </el-input>
-                        <div class="input-suffix-text">范围: {{currentRange.minCost}}-{{currentRange.maxCost}}</div>
-                    </el-form-item>
-                </el-col>
-                <el-col :xs="24" :sm="12">
-                    <el-form-item label="亩均产出(元)">
-                        <el-input
-                                v-model.number="form.incomePerMu"
-                                type="number"
-                                @input="() => { lockInc = true; handleManualInput(); }"
-                                placeholder="可手输">
-                            <template #suffix>
-                                <el-checkbox v-model="lockInc" label="锁定" size="small" />
-                            </template>
-                        </el-input>
-                        <div class="input-suffix-text">范围: {{currentRange.minInc}}-{{currentRange.maxInc}}</div>
-                    </el-form-item>
-                </el-col>
-            </el-row>
-
-            <el-row :gutter="10" style="margin-bottom: 10px;">
-                <el-col :xs="24" :sm="12">
-                    <div class="summary-card">
-                        <div class="summary-label">📊 年种植总投入 (纯经营)</div>
-                        <div class="summary-val">{{ (form.area * form.costPerMu).toLocaleString() }}</div>
-                        <div class="summary-sub">≈ {{ ((form.area * form.costPerMu) / 10000).toFixed(4) }} 万元</div>
-                    </div>
-                </el-col>
-                <el-col :xs="24" :sm="12">
-                    <div class="summary-card">
-                        <div class="summary-label">💰 年种植总产出 (纯经营)</div>
-                        <div class="summary-val">{{ (form.area * form.incomePerMu).toLocaleString() }}</div>
-                        <div class="summary-sub">≈ {{ ((form.area * form.incomePerMu) / 10000).toFixed(4) }} 万元</div>
-                    </div>
-                </el-col>
-            </el-row>
-
-            <div style="text-align: center; margin-top: 10px;">
-                <el-button type="primary" plain style="width: 100%;" @click="randomizeValues" :disabled="lockCost && lockInc">
-                    🎲 智能计算 / 随机微调
-                </el-button>
-            </div>
-        </div>
-
-        <div class="section-box">
-            <span class="section-title">3. 资产与负债</span>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="8"><el-form-item label="房产(万)"><el-input type="number" v-model="form.assetHouse"></el-input></el-form-item></el-col>
-                <el-col :xs="24" :sm="8"><el-form-item label="车辆(万)"><el-input type="number" v-model="form.assetCar"></el-input></el-form-item></el-col>
-                <el-col :xs="24" :sm="8"><el-form-item label="存款理财(万)"><el-input type="number" v-model="form.assetDeposit"></el-input></el-form-item></el-col>
-            </el-row>
-            <el-row :gutter="15">
-                <el-col :xs="24" :sm="8"><el-form-item label="土地林地(万)"><el-input type="number" v-model="form.assetLand"></el-input></el-form-item></el-col>
-                <el-col :xs="24" :sm="8"><el-form-item label="他行贷款(万)"><el-input type="number" v-model="form.debtOtherBank"></el-input></el-form-item></el-col>
-                <el-col :xs="24" :sm="8"><el-form-item label="信用卡(万)"><el-input type="number" v-model="form.debtCreditCard"></el-input></el-form-item></el-col>
-            </el-row>
-
-            <div style="background:#f4f4f5; border-radius:6px; padding: 15px; margin-top: 10px;">
-                <el-row :gutter="15">
-                    <el-col :xs="24" :sm="8"><el-form-item label="生活成本(万)"><el-input type="number" v-model="form.livingCost" @input="handleManualInput"></el-input></el-form-item></el-col>
-                    <el-col :xs="24" :sm="8"><el-form-item label="额外收入(万)"><el-input type="number" v-model="form.extraIncome" @input="handleManualInput"></el-input></el-form-item></el-col>
-                    <el-col :xs="24" :sm="8"><el-form-item label="本次申请(万)"><el-input type="number" v-model="form.applyAmount"></el-input></el-form-item></el-col>
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12"><el-form-item label="客户姓名"><el-input v-model="form.name" placeholder="请输入姓名"></el-input></el-form-item></el-col>
+                    <el-col :xs="24" :sm="12"><el-form-item label="身份证号"><el-input v-model="form.idCard" placeholder="请输入身份证号"></el-input></el-form-item></el-col>
                 </el-row>
-                <div style="font-size: 12px; color: #909399; margin-top: 5px;">* 生活成本和额外收入将计入家庭总收支比。</div>
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12"><el-form-item label="联系电话"><el-input v-model="form.phone" type="tel" placeholder="11位手机号"></el-input></el-form-item></el-col>
+                    <el-col :xs="24" :sm="12"><el-form-item label="居住地址"><el-input v-model="form.address" placeholder="常住地址"></el-input></el-form-item></el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12"><el-form-item label="婚姻状况">
+                        <el-select v-model="form.marriage" style="width:100%" placeholder="请选择">
+                            <el-option value="已婚" label="已婚"></el-option>
+                            <el-option value="未婚" label="未婚"></el-option>
+                            <el-option value="离异" label="离异"></el-option>
+                        </el-select>
+                    </el-form-item></el-col>
+                </el-row>
             </div>
 
-            <div class="debt-panel">
-                <div class="debt-row">
-                    <div class="debt-item">
-                        <div class="debt-label">总资产</div>
-                        <div class="debt-val" style="color: #409EFF;">{{ totalAssets.toFixed(1) }}</div>
+            <div class="section-box">
+                <div class="section-header">
+                    <div class="section-icon" style="background: var(--accent-color);"></div>
+                    <span class="section-title-text">经营画像测算</span>
+                </div>
+
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12">
+                        <el-form-item label="选择产业">
+                            <el-select v-model="form.cropType" @change="handleCropChange" style="width:100%">
+                                <el-option v-for="(v, k) in cropDb" :key="k" :label="k" :value="k"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12"><el-form-item label="细分品种"><el-input v-model="currentCropVariety" disabled></el-input></el-form-item></el-col>
+                </el-row>
+                <el-row :gutter="20">
+                    <el-col :xs="24" :sm="12"><el-form-item label="种植规模(亩)"><el-input-number v-model="form.area" :min="1" style="width:100%" @change="handleManualInput"></el-input-number></el-form-item></el-col>
+                    <el-col :xs="24" :sm="12"><el-form-item label="种植年限"><el-input-number v-model="form.years" :min="1" style="width:100%"></el-input-number></el-form-item></el-col>
+                </el-row>
+
+                <div class="slider-panel">
+                    <div class="slider-header">
+                        <span style="display:flex; align-items:center;">🎛️ 收支比调节控制台</span>
+                        <span style="font-size: 20px; font-family: 'DIN Alternate';">{{ (realRatio * 100).toFixed(1) }}%</span>
                     </div>
-                    <div class="debt-item">
-                        <div class="debt-label">总负债</div>
-                        <div class="debt-val" style="color: #F56C6C;">{{ totalDebts.toFixed(1) }}</div>
+                    <el-slider
+                            v-model="sliderVal"
+                            :min="10" :max="90" :step="0.1"
+                            @input="handleSliderInput"
+                            :disabled="lockCost && lockInc"
+                            :show-tooltip="false"
+                            size="small"
+                            style="margin-bottom: 10px;">
+                    </el-slider>
+                    <div class="calc-tags">
+                        <div class="mini-tag">模式: {{ isMobile && lockStatusText.length > 10 ? '锁定' : lockStatusText }}</div>
+                        <div class="mini-tag">总收: {{(totalFamilyIncome/10000).toFixed(2)}}w</div>
+                        <div class="mini-tag">总支: {{(totalFamilyCost/10000).toFixed(2)}}w</div>
                     </div>
-                    <div class="debt-item">
-                        <div class="debt-label">负债率</div>
-                        <div class="debt-val" :style="{color: debtRatio > 0.7 ? '#F56C6C' : '#67C23A'}">
-                            {{ (debtRatio * 100).toFixed(1) }}%
+                </div>
+
+                <el-row :gutter="20" style="margin-top:20px;">
+                    <el-col :xs="24" :sm="12">
+                        <el-form-item label="亩均投入(元)">
+                            <el-input
+                                    v-model.number="form.costPerMu"
+                                    type="number"
+                                    @input="() => { lockCost = true; handleManualInput(); }"
+                                    placeholder="可手输">
+                                <template #suffix>
+                                    <el-checkbox v-model="lockCost" label="锁定" size="small" />
+                                </template>
+                            </el-input>
+                            <div class="input-suffix-text">
+                                <span>范围: {{currentRange.minCost}}-{{currentRange.maxCost}}</span>
+                                <span class="avg-tag" v-if="currentRange.minCost">(均值: {{ Math.round((currentRange.minCost + currentRange.maxCost) / 2) }})</span>
+                            </div>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :xs="24" :sm="12">
+                        <el-form-item label="亩均产出(元)">
+                            <el-input
+                                    v-model.number="form.incomePerMu"
+                                    type="number"
+                                    @input="() => { lockInc = true; handleManualInput(); }"
+                                    placeholder="可手输">
+                                <template #suffix>
+                                    <el-checkbox v-model="lockInc" label="锁定" size="small" />
+                                </template>
+                            </el-input>
+                            <div class="input-suffix-text">
+                                <span>范围: {{currentRange.minInc}}-{{currentRange.maxInc}}</span>
+                                <span class="avg-tag" v-if="currentRange.minInc" style="color: var(--success-color); background:#ecfdf5;">(均值: {{ Math.round((currentRange.minInc + currentRange.maxInc) / 2) }})</span>
+                            </div>
+                        </el-form-item>
+                    </el-col>
+                </el-row>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">📉 年经营总投入</div>
+                        <div class="stat-val">{{ (form.area * form.costPerMu).toLocaleString() }}</div>
+                        <div class="stat-sub">≈ {{ ((form.area * form.costPerMu) / 10000).toFixed(4) }} 万元</div>
+                    </div>
+                    <div class="stat-card" style="background:#f0fdf4; border-color:#dcfce7;">
+                        <div class="stat-label">💰 年经营总产出</div>
+                        <div class="stat-val" style="color:#15803d;">{{ (form.area * form.incomePerMu).toLocaleString() }}</div>
+                        <div class="stat-sub">≈ {{ ((form.area * form.incomePerMu) / 10000).toFixed(4) }} 万元</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 15px;">
+                    <el-button type="primary" plain round style="width: 100%; border-style: dashed;" @click="randomizeValues" :disabled="lockCost && lockInc">
+                        🎲 智能计算 / 随机微调
+                    </el-button>
+                </div>
+            </div>
+
+            <div class="section-box">
+                <div class="section-header">
+                    <div class="section-icon" style="background: var(--danger-color);"></div>
+                    <span class="section-title-text">资产与负债结构</span>
+                </div>
+
+                <div class="asset-group">
+                    <span class="group-label">🔵 资产项 (单位:万元)</span>
+                    <el-row :gutter="15">
+                        <el-col :xs="12" :sm="8"><el-form-item label="房产"><el-input type="number" v-model="form.assetHouse"></el-input></el-form-item></el-col>
+                        <el-col :xs="12" :sm="8"><el-form-item label="车辆"><el-input type="number" v-model="form.assetCar"></el-input></el-form-item></el-col>
+                        <el-col :xs="12" :sm="8"><el-form-item label="存款"><el-input type="number" v-model="form.assetDeposit"></el-input></el-form-item></el-col>
+                        <el-col :xs="12" :sm="8"><el-form-item label="土/林"><el-input type="number" v-model="form.assetLand"></el-input></el-form-item></el-col>
+                    </el-row>
+                </div>
+
+                <div class="debt-group">
+                    <span class="group-label">🔴 负债项 (单位:万元)</span>
+                    <el-row :gutter="15">
+                        <el-col :xs="12" :sm="8"><el-form-item label="他行贷"><el-input type="number" v-model="form.debtOtherBank"></el-input></el-form-item></el-col>
+                        <el-col :xs="12" :sm="8"><el-form-item label="信用卡"><el-input type="number" v-model="form.debtCreditCard"></el-input></el-form-item></el-col>
+                        <el-col :xs="12" :sm="8"><el-form-item label="本笔贷"><el-input type="number" v-model="form.applyAmount"></el-input></el-form-item></el-col>
+                    </el-row>
+                </div>
+
+                <div style="padding: 10px; border-top: 1px solid #f1f5f9;">
+                    <el-row :gutter="15">
+                        <el-col :xs="12" :sm="8"><el-form-item label="生活费"><el-input type="number" v-model="form.livingCost" @input="handleManualInput"></el-input></el-form-item></el-col>
+                        <el-col :xs="12" :sm="8"><el-form-item label="副业收"><el-input type="number" v-model="form.extraIncome" @input="handleManualInput"></el-input></el-form-item></el-col>
+                    </el-row>
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">* 生活费与副业收入将自动计入家庭收支比测算</div>
+                </div>
+
+                <div class="debt-panel">
+                    <div class="debt-row">
+                        <div class="debt-item">
+                            <div class="debt-label">总资产</div>
+                            <div class="debt-val" style="color: var(--primary-color);">{{ totalAssets.toFixed(1) }}</div>
+                        </div>
+                        <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
+                        <div class="debt-item">
+                            <div class="debt-label">总负债</div>
+                            <div class="debt-val" style="color: var(--danger-color);">{{ totalDebts.toFixed(1) }}</div>
+                        </div>
+                        <div style="width: 1px; height: 30px; background: #e2e8f0;"></div>
+                        <div class="debt-item">
+                            <div class="debt-label">负债率</div>
+                            <div class="debt-val" :style="{color: debtRatio > 0.7 ? '#ef4444' : '#10b981'}">
+                                {{ (debtRatio * 100).toFixed(1) }}%
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </el-form>
+    </div>
 
-        <el-button type="success" size="large" style="width:100%; height:50px; font-size:16px; font-weight:bold; margin-top: 10px;" @click="exportExcel">
-            📥 下载最终版 Excel
+    <div class="action-bar" id="bottom-actions">
+        <el-button color="#2563eb" size="large" class="btn-shadow" style="flex: 1; height:48px; font-size:16px;" @click="exportImage">
+            <span style="margin-right:5px;">📸</span> 导出长图
         </el-button>
-        <div style="height: 50px;"></div> </el-form>
+        <el-button color="#10b981" size="large" class="btn-shadow" style="flex: 1; height:48px; font-size:16px;" @click="exportExcel">
+            <span style="margin-right:5px;">📥</span> 生成报表
+        </el-button>
+    </div>
+
+    <div style="height: 40px;"></div>
 </div>
 
 <script>
@@ -371,6 +500,58 @@
                 form.costPerMu = Math.floor(forcedCost);
             };
 
+            // --- 核心修复：优化后的导出图片功能 ---
+            const exportImage = () => {
+                // 1. 获取要截图的区域
+                const element = document.getElementById('capture-area');
+
+                // 2. 截图配置
+                html2canvas(element, {
+                    useCORS: true, // 允许跨域图片
+                    scale: 2,      // 提高清晰度
+                    backgroundColor: '#f8fafc', // 设置背景色与网页背景一致，避免透明
+
+                    // 3. 【关键修复】在克隆的 DOM 上进行样式修改
+                    onclone: (clonedDoc) => {
+                        const clonedApp = clonedDoc.getElementById('capture-area');
+
+                        // 处理 .el-input__wrapper (外层包裹器)
+                        // 目标：消除背景色和阴影，避免遮挡文字，并手动添加一个简单的边框
+                        const wrappers = clonedApp.querySelectorAll('.el-input__wrapper, .el-textarea__inner');
+                        wrappers.forEach(w => {
+                            w.style.backgroundColor = 'transparent'; // 背景设为透明
+                            w.style.boxShadow = 'none';            // 移除阴影
+                            w.style.border = '1px solid #dcdfe6';  // 手动添加一个简单的边框
+                            w.style.borderRadius = '4px';          // 保持圆角
+                        });
+
+                        // 处理 .el-input__inner (内层输入框文字)
+                        // 目标：确保文字颜色正确，并清空 placeholder 以防重叠
+                        const inputs = clonedApp.querySelectorAll('.el-input__inner');
+                        inputs.forEach(input => {
+                            input.style.color = '#606266'; // 强制设置文字颜色
+                            // 如果输入框有值，清空 placeholder
+                            if (input.value) {
+                                input.setAttribute('placeholder', '');
+                            }
+                        });
+
+                        // --- 隐藏无关元素 ---
+                        // 目标：隐藏下拉箭头、前后缀图标等，简化截图内容
+                        const icons = clonedApp.querySelectorAll('.el-input__suffix, .el-input__prefix, .el-select__caret');
+                        icons.forEach(el => el.style.display = 'none');
+                    }
+                }).then(canvas => {
+                    // 4. 将 canvas 转换为图片并下载
+                    canvas.toBlob(blob => {
+                        saveAs(blob, `裕农快贷_V12.5_${form.name}.png`);
+                    });
+                }).catch(err => {
+                    console.error('截图失败:', err);
+                    alert('截图生成失败，请重试');
+                });
+            };
+
             const exportExcel = async () => {
                 const workbook = new ExcelJS.Workbook();
                 const styleWrapIndent = { wrapText: true, vertical: 'middle', horizontal: 'left', indent: 1 };
@@ -461,7 +642,7 @@
                 operatingCost, operatingIncome,
                 totalFamilyCost, totalFamilyIncome,
                 sliderVal, realRatio, lockCost, lockInc, lockStatusText, isMobile,
-                handleSliderInput, randomizeValues, handleCropChange, handleManualInput, exportExcel
+                handleSliderInput, randomizeValues, handleCropChange, handleManualInput, exportExcel, exportImage
             };
         }
     };
@@ -470,5 +651,3 @@
 </script>
 </body>
 </html>
-
-
